@@ -38,7 +38,7 @@ func New() *echo.Echo {
 func Jobs(quit <-chan bool) {
 	for {
 		s := gocron.NewScheduler()
-		s.Every(1).Day().At("11:59:00").Do(database.PostData)
+		s.Every(1).Day().At("01:26:00").Do(database.PostData)
 		select {
 		case <-quit:
 			return
