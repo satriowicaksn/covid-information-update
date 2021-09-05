@@ -1,6 +1,8 @@
 package main
 
-import "covid-information-update/routes"
+import (
+	"covid-information-update/routes"
+)
 
 func main() {
 	e := routes.New()

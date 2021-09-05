@@ -9,14 +9,20 @@ import (
 )
 
 func GetData(c echo.Context) error {
-	result, err := database.FetchDataFromApi()
+	check, err := database.CheckDataUpdate()
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
-	database.PostData()
+	if check == true {
+		database.PostData()
+	}
+	result, err := database.GetDataNow()
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
 	return c.JSON(http.StatusOK, models.Response{
 		Status:  "success",
-		Message: "Success fetch covid information data from API",
+		Message: "Success fetch covid information update",
 		Data:    result,
 	})
 }

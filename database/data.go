@@ -11,7 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func FetchDataFromApi() (interface{}, error) {
+func FetchDataFromApi() ([]models.DataIndonesia, error) {
 	req, err := http.NewRequest("GET", "https://api.kawalcorona.com/indonesia", nil)
 	if err != nil {
 		return nil, err
@@ -34,28 +34,50 @@ func FetchDataFromApi() (interface{}, error) {
 
 }
 
-func GetDataToday() (interface{}, error) {
+func GetDataNow() (models.DataIndonesia, error) {
 	var ctx = context.Background()
+	result := []models.DataIndonesia{}
 	db, err := config.Connect()
 	if err != nil {
-		return nil, err
+		return result[0], err
 	}
-	csr, err := db.Collection("indonesia").Find(ctx, bson.M{"name": "Indonesia"})
+	csr, err := db.Collection("indonesia").Find(ctx, bson.M{"daerah": "Indonesia"})
 	if err != nil {
-		return nil, err
+		return result[0], err
 	}
 	defer csr.Close(ctx)
-	result := make([]models.DataIndonesia, 0)
+
 	for csr.Next(ctx) {
 		var row models.DataIndonesia
 		err := csr.Decode(&row)
 		if err != nil {
-			return nil, err
+			return result[0], err
 		}
 		result = append(result, row)
 	}
 	count := len(result)
 	return result[count-1], nil
+}
+
+func CheckDataUpdate() (bool, error) {
+	fromApi, err := FetchDataFromApi()
+	if err != nil {
+		return false, err
+	}
+	fromDatabase, err := GetDataNow()
+	if err != nil {
+		return false, err
+	}
+	if fromApi[0].Positif != fromDatabase.Positif {
+		return true, nil
+	} else if fromApi[0].Sembuh != fromDatabase.Sembuh {
+		return true, nil
+	} else if fromApi[0].Meninggal != fromDatabase.Meninggal {
+		return true, nil
+	} else if fromApi[0].Dirawat != fromDatabase.Dirawat {
+		return true, nil
+	}
+	return false, nil
 }
 
 func GetDataLog() (interface{}, error) {
@@ -64,7 +86,7 @@ func GetDataLog() (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	csr, err := db.Collection("indonesia").Find(ctx, bson.M{"name": "Indonesia"})
+	csr, err := db.Collection("indonesia").Find(ctx, bson.M{"daerah": "Indonesia"})
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +100,7 @@ func GetDataLog() (interface{}, error) {
 		}
 		result = append(result, row)
 	}
-	return result[0].Daerah, nil
+	return result, nil
 }
 
 func PostData() (interface{}, error) {
@@ -91,15 +113,14 @@ func PostData() (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	newDataCasting := newData.([]models.DataIndonesia)
 
 	dataIndonesia := models.DataIndonesia{
 		Update_time: time.Now().Add(7 * time.Hour),
 		Daerah:      "Indonesia",
-		Positif:     newDataCasting[0].Positif,
-		Sembuh:      newDataCasting[0].Sembuh,
-		Meninggal:   newDataCasting[0].Meninggal,
-		Dirawat:     newDataCasting[0].Dirawat,
+		Positif:     newData[0].Positif,
+		Sembuh:      newData[0].Sembuh,
+		Meninggal:   newData[0].Meninggal,
+		Dirawat:     newData[0].Dirawat,
 	}
 	_, err = db.Collection("indonesia").InsertOne(ctx, dataIndonesia)
 	if err != nil {
