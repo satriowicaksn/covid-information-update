@@ -25,10 +25,10 @@ jobs:
     
     - name: docker build golang
       run: |
-        docker build . -t satriowicaksono/alta-store-project:1.0.0
+        docker build . -t satriowicaksono/covid-information-update:1.0.0
     - name: docker push
       run: |
-        docker push satriowicaksono/alta-store-project:1.0.0
+        docker push satriowicaksono/covid-information-update:1.0.0
     - name: Build, Push and Release a Docker container to Heroku.
       uses: gonuit/heroku-docker-deploy@v1.3.3
       with: 
