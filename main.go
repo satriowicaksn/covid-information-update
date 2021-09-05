@@ -1,7 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"covid-information-update/routes"
+)
 
 func main() {
-	fmt.Println("OK")
+	e := routes.New()
+	e.Logger.Fatal(e.Start(":8000"))
 }
