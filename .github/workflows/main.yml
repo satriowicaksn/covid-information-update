@@ -1,4 +1,4 @@
-name: Build Docker Image, Integration To Docker Hub and Deploy To Herokuu
+name: Build Docker Image, Integration To Docker Hub and Deploy To Heroku
 
 on:
   push: 
