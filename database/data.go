@@ -94,7 +94,7 @@ func PostData() (interface{}, error) {
 	newDataCasting := newData.([]models.DataIndonesia)
 
 	dataIndonesia := models.DataIndonesia{
-		Update_time: time.Now(),
+		Update_time: time.Now().Add(7 * time.Hour),
 		Daerah:      "Indonesia",
 		Positif:     newDataCasting[0].Positif,
 		Sembuh:      newDataCasting[0].Sembuh,
